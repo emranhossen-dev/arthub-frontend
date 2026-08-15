@@ -10,25 +10,19 @@ const client = new MongoClient(process.env.MONGO_DB_URI);
 const db = client.db("ArtHub"); // database name
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db, {
-    client,
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
+  database: mongodbAdapter(db, { client }),
+  emailAndPassword: { enabled: true },
+  
+  // CORS & Security Allowed Origins
+  trustedOrigins: [
+    "https://arthubemran.netlify.app",
+    "http://localhost:3000"
+  ],
+  
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    },
-  },
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        defaultValue: "user",
-        required: false,
-      },
     },
   },
 });
