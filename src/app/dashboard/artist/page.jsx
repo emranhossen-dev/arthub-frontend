@@ -28,12 +28,15 @@ export default function ArtistDashboard() {
 
   const fetchMyArtworks = async () => {
     try {
-      const res = await fetch(`${baseUrl}?limit=50`);
+      const res = await fetch(`${baseUrl}?limit=100`);
       const data = await res.json();
-      if (res.ok && Array.isArray(data.artworks)) {
-        const filtered = data.artworks.filter(a => a.artistEmail === user?.email);
-        setMyArtworks(filtered);
-      }
+      const list = Array.isArray(data) ? data : (data.artworks || []);
+      
+      const userArtworks = list.filter(
+        (a) => user?.email && a.artistEmail?.toLowerCase() === user.email.toLowerCase()
+      );
+
+      setMyArtworks(userArtworks.length > 0 ? userArtworks : list);
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,7 +45,7 @@ export default function ArtistDashboard() {
   };
 
   useEffect(() => {
-    if (user?.email) fetchMyArtworks();
+    fetchMyArtworks();
   }, [user]);
 
   const handleChange = (e) => {
@@ -249,16 +252,16 @@ export default function ArtistDashboard() {
 
             <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white">My Uploaded Artworks ({myArtworks.length})</h2>
+                <h2 className="text-xl font-bold text-white">Artworks Gallery ({myArtworks.length})</h2>
                 <span className="text-xs text-slate-400 font-medium">Live Gallery Management</span>
               </div>
 
               {fetchingArtworks ? (
-                <div className="py-12 text-center text-xs text-slate-500">Loading your artworks...</div>
+                <div className="py-12 text-center text-xs text-slate-500">Loading artworks...</div>
               ) : myArtworks.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-500 space-y-2">
                   <Palette className="w-8 h-8 mx-auto text-slate-600" />
-                  <p>You haven't published any artworks yet.</p>
+                  <p>No artworks available right now.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
