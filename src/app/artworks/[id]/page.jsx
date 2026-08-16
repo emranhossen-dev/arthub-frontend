@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { ArrowLeft, ShoppingBag, TrashBin, Pencil, Check, Xmark, Calendar, Tag, Comment, PaperPlane } from "@gravity-ui/icons";
+import { ArrowLeft, ShoppingBag, TrashBin, Pencil, Xmark, Calendar, Tag, Comment, PaperPlane } from "@gravity-ui/icons";
 
 export default function ArtworkDetailsPage({ params }) {
   const unwrappedParams = use(params);
   const artworkId = unwrappedParams.id;
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const currentUser = session?.user;
 
@@ -17,19 +18,19 @@ export default function ArtworkDetailsPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
-  // Comments States
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
 
-  // Edit Modal State
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ title: "", description: "", price: "", category: "" });
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
   const commentsUrl = process.env.NEXT_PUBLIC_COMMENTS_API_URL || "http://localhost:5000/api/comments";
+  const paymentsUrl = process.env.NEXT_PUBLIC_PAYMENTS_API_URL || "http://localhost:5000/api/payments";
 
   const fetchArtworkDetails = async () => {
     try {
@@ -63,6 +64,29 @@ export default function ArtworkDetailsPage({ params }) {
   };
 
   useEffect(() => {
+    const isSuccess = searchParams.get("payment") === "success";
+    const sessionId = searchParams.get("session_id");
+
+    if (isSuccess && sessionId && currentUser) {
+      fetch(`${paymentsUrl}/confirm-purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          artworkId,
+          userEmail: currentUser.email,
+          transactionId: sessionId,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setActionMessage(data.message || "Payment successful! Artwork purchased.");
+          fetchArtworkDetails();
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [searchParams, currentUser]);
+
+  useEffect(() => {
     if (artworkId) {
       fetchArtworkDetails();
       fetchComments();
@@ -71,7 +95,40 @@ export default function ArtworkDetailsPage({ params }) {
 
   const isOwner = currentUser && artwork && currentUser.email === artwork.artistEmail;
 
-  // Handle Add Comment
+  const handleBuyNow = async () => {
+    if (!currentUser) {
+      alert("Please login to purchase artworks.");
+      router.push("/login");
+      return;
+    }
+
+    setPaymentLoading(true);
+    try {
+      const res = await fetch(`${paymentsUrl}/create-artwork-checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          artworkId,
+          userEmail: currentUser.email,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Purchase failed.");
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      alert("Payment error: " + err.message);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -93,7 +150,7 @@ export default function ArtworkDetailsPage({ params }) {
       if (!res.ok) throw new Error(data.message || "Failed to add comment");
 
       setNewComment("");
-      fetchComments(); // Refresh comments list
+      fetchComments();
     } catch (err) {
       alert(err.message);
     } finally {
@@ -101,7 +158,6 @@ export default function ArtworkDetailsPage({ params }) {
     }
   };
 
-  // Handle Delete Comment
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm("Delete this comment?")) return;
     try {
@@ -112,7 +168,6 @@ export default function ArtworkDetailsPage({ params }) {
     }
   };
 
-  // Handle Edit Artwork Submit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -138,7 +193,6 @@ export default function ArtworkDetailsPage({ params }) {
     }
   };
 
-  // Handle Delete Artwork
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this artwork permanently?")) return;
 
@@ -163,7 +217,7 @@ export default function ArtworkDetailsPage({ params }) {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-medium font-sans">Loading Artwork Details...</p>
+          <p className="text-sm font-medium">Loading Artwork Details...</p>
         </div>
       </div>
     );
@@ -182,25 +236,22 @@ export default function ArtworkDetailsPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-6xl mx-auto space-y-12">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
-        {/* Back Link */}
         <Link href="/browse" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-violet-400 transition">
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Artworks</span>
         </Link>
 
         {actionMessage && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm">
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm font-medium">
             {actionMessage}
           </div>
         )}
 
-        {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
           
-          {/* Image Display */}
           <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800">
             <img src={artwork.imageUrl} alt={artwork.title} className="w-full h-full object-cover" />
             {artwork.status === "sold" && (
@@ -210,7 +261,6 @@ export default function ArtworkDetailsPage({ params }) {
             )}
           </div>
 
-          {/* Details Info */}
           <div className="space-y-6 flex flex-col justify-between">
             <div className="space-y-4">
               
@@ -242,18 +292,18 @@ export default function ArtworkDetailsPage({ params }) {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="space-y-4 pt-4 border-t border-slate-800">
               
-              {/* Buy Now Button */}
               <button
-                disabled={isOwner || artwork.status === "sold"}
-                onClick={() => alert("Stripe Payment checkout will trigger in Step 13!")}
+                disabled={isOwner || artwork.status === "sold" || paymentLoading}
+                onClick={handleBuyNow}
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 disabled:opacity-40 text-white font-bold rounded-xl shadow-lg shadow-violet-500/25 transition cursor-pointer"
               >
                 <ShoppingBag className="w-5 h-5" />
                 <span>
-                  {artwork.status === "sold"
+                  {paymentLoading
+                    ? "Processing Payment..."
+                    : artwork.status === "sold"
                     ? "Artwork Sold Out"
                     : isOwner
                     ? "You Own This Artwork"
@@ -261,7 +311,6 @@ export default function ArtworkDetailsPage({ params }) {
                 </span>
               </button>
 
-              {/* Owner Controls */}
               {isOwner && (
                 <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
                   <p className="text-xs font-bold text-violet-400 uppercase tracking-wider">
@@ -292,14 +341,12 @@ export default function ArtworkDetailsPage({ params }) {
           </div>
         </div>
 
-        {/* Comment Section (Challenge Feature) */}
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
           <div className="flex items-center gap-2 border-b border-slate-800 pb-4">
             <Comment className="w-5 h-5 text-violet-400" />
             <h2 className="text-xl font-bold text-white">Community Reviews & Comments ({comments.length})</h2>
           </div>
 
-          {/* Add Comment Form */}
           {currentUser ? (
             <form onSubmit={handleAddComment} className="space-y-3">
               <textarea
@@ -325,7 +372,6 @@ export default function ArtworkDetailsPage({ params }) {
             </div>
           )}
 
-          {/* Comments List */}
           <div className="space-y-4 pt-4">
             {comments.length === 0 ? (
               <p className="text-xs text-slate-500 italic">No comments yet. Be the first to review this artwork!</p>
@@ -340,11 +386,10 @@ export default function ArtworkDetailsPage({ params }) {
                     <p className="text-xs text-slate-300 leading-relaxed">{c.commentText}</p>
                   </div>
 
-                  {/* Delete own comment */}
                   {currentUser && currentUser.email === c.userEmail && (
                     <button
                       onClick={() => handleDeleteComment(c._id)}
-                      className="text-slate-500 hover:text-red-400 transition"
+                      className="text-slate-500 hover:text-red-400 transition cursor-pointer"
                       title="Delete Comment"
                     >
                       <TrashBin className="w-4 h-4" />
@@ -356,13 +401,12 @@ export default function ArtworkDetailsPage({ params }) {
           </div>
         </div>
 
-        {/* Inline Edit Modal */}
         {isEditing && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-6 shadow-2xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-4">
                 <h3 className="text-xl font-bold text-white">Edit Artwork Details</h3>
-                <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-white cursor-pointer">
                   <Xmark className="w-6 h-6" />
                 </button>
               </div>
@@ -422,14 +466,14 @@ export default function ArtworkDetailsPage({ params }) {
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold"
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold"
+                    className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold cursor-pointer"
                   >
                     {actionLoading ? "Saving..." : "Save Changes"}
                   </button>
