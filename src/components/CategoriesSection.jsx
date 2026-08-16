@@ -50,23 +50,23 @@ export default function CategoriesSection() {
             href={cat.link}
             className="group relative h-48 rounded-2xl overflow-hidden border border-slate-800 shadow-sm flex items-end p-4 hover:shadow-xl hover:border-violet-500/30 transition-all hover:scale-[1.01]"
           >
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent z-10" />
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-10" />
 
-            {/* Image */}
+            {/* Background Image */}
             <img
               src={cat.image}
               alt={cat.name}
               className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
 
-            {/* Title & Count */}
+            {/* Title & Count (Guaranteed Bright White in Light & Dark Mode) */}
             <div className="relative z-20 space-y-1">
-              <h3 className="text-base font-bold text-white flex items-center gap-1">
-                <span>{cat.name}</span>
-                <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <h3 className="text-base font-bold keep-white flex items-center gap-1">
+                <span className="keep-white">{cat.name}</span>
+                <ArrowUpRight className="w-4 h-4 keep-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </h3>
-              <p className="text-[10px] text-neutral-300 uppercase tracking-widest font-semibold">
+              <p className="text-[10px] keep-slate uppercase tracking-widest font-semibold">
                 {cat.count}
               </p>
             </div>

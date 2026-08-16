@@ -30,6 +30,7 @@ export default function ArtworkDetailsPage({ params }) {
 
   const [artwork, setArtwork] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Comment section state
   const [comments, setComments] = useState([]);
@@ -81,10 +82,27 @@ export default function ArtworkDetailsPage({ params }) {
     }
   };
 
+  const checkWishlistStatus = async () => {
+    if (!currentUser?.email) return;
+    try {
+      const res = await fetch(`${baseUrl}/wishlist/${currentUser.email}`);
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.wishlist)) {
+        setIsWishlisted(data.wishlist.includes(artworkId));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchArtworkDetails();
     fetchComments();
   }, [artworkId]);
+
+  useEffect(() => {
+    if (currentUser?.email) checkWishlistStatus();
+  }, [currentUser?.email, artworkId]);
 
   useEffect(() => {
     const payment = searchParams.get("payment");
@@ -113,6 +131,28 @@ export default function ArtworkDetailsPage({ params }) {
         .catch((err) => console.error(err));
     }
   }, [searchParams, artworkId, currentUser]);
+
+  const handleToggleWishlist = async () => {
+    if (!currentUser?.email) {
+      toast.error("Please login to save to your wishlist!");
+      router.push("/login");
+      return;
+    }
+    try {
+      const res = await fetch(`${baseUrl}/wishlist/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: currentUser.email, artworkId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIsWishlisted(data.isWishlisted);
+        toast.success(data.isWishlisted ? "Added to Wishlist!" : "Removed from Wishlist!");
+      }
+    } catch (err) {
+      toast.error("Failed to update wishlist");
+    }
+  };
 
   const handleBuyNow = async () => {
     if (!currentUser) {
@@ -360,18 +400,33 @@ export default function ArtworkDetailsPage({ params }) {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={handleBuyNow}
-                  disabled={isSold || paymentLoading}
-                  className={`w-full py-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition shadow-xl cursor-pointer ${
-                    isSold
-                      ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                      : "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-violet-500/25"
-                  }`}
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>{isSold ? "Already Sold Out" : paymentLoading ? "Processing Payment..." : `Buy Now for $${artwork.price}`}</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={isSold || paymentLoading}
+                    className={`flex-1 py-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition shadow-xl cursor-pointer ${
+                      isSold
+                        ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                        : "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-violet-500/25"
+                    }`}
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    <span>{isSold ? "Already Sold Out" : paymentLoading ? "Processing..." : `Buy Now for $${artwork.price}`}</span>
+                  </button>
+
+                  <button
+                    onClick={handleToggleWishlist}
+                    className={`px-4 py-4 rounded-xl border transition cursor-pointer flex items-center justify-center gap-2 ${
+                      isWishlisted
+                        ? "bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-500/20"
+                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-rose-500 hover:text-rose-400"
+                    }`}
+                    title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                  >
+                    <Heart className="w-5 h-5" />
+                    <span className="text-xs font-bold hidden sm:inline">{isWishlisted ? "Saved" : "Save"}</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>

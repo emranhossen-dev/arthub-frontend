@@ -36,7 +36,7 @@ export default function Banner() {
   }, [slides.length]);
 
   return (
-    <section className="relative h-[550px] md:h-[600px] w-full overflow-hidden bg-neutral-900 text-white flex items-center">
+    <section className="relative h-[550px] md:h-[600px] w-full overflow-hidden bg-slate-950 text-white flex items-center">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -44,8 +44,8 @@ export default function Banner() {
             index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/60 z-10" />
+          {/* High-Contrast Dark Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/40 z-10" />
 
           {/* Background Image */}
           <img
@@ -56,33 +56,33 @@ export default function Banner() {
 
           {/* Content */}
           <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full bg-violet-600/20 border border-violet-500/30 px-3.5 py-1.5 text-xs font-bold text-violet-300 uppercase tracking-widest self-start animate-pulse">
-              <Sparkles className="w-4 h-4 text-violet-400" />
-              <span>{slide.tag}</span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-violet-600/40 border border-violet-400/50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest self-start backdrop-blur-md shadow-lg animate-pulse">
+              <Sparkles className="w-4 h-4 text-violet-300" />
+              <span className="keep-white">{slide.tag}</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight max-w-2xl leading-none">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight max-w-2xl leading-none keep-white drop-shadow-2xl">
               {slide.title}
             </h1>
 
-            <p className="text-sm sm:text-base md:text-lg text-neutral-300 max-w-lg leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg keep-slate max-w-lg leading-relaxed drop-shadow-md font-medium">
               {slide.description}
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
               <Link
                 href="/browse"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition-all hover:scale-[1.01]"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 px-7 py-3.5 text-sm font-bold keep-white shadow-xl shadow-violet-600/30 transition-all hover:scale-105"
               >
-                <span>Browse Artworks</span>
-                <ArrowRight className="w-4 h-4" />
+                <span className="keep-white">Browse Artworks</span>
+                <ArrowRight className="w-4 h-4 keep-white" />
               </Link>
 
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 hover:bg-white/20 px-6 py-3 text-sm font-semibold transition-all"
+                className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-slate-900/80 hover:bg-white/20 backdrop-blur-md px-7 py-3.5 text-sm font-bold keep-white transition-all shadow-lg"
               >
-                <span>Join as Artist</span>
+                <span className="keep-white">Join as Artist</span>
               </Link>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function Banner() {
             key={i}
             onClick={() => setCurrentSlide(i)}
             className={`h-2.5 rounded-full transition-all cursor-pointer ${
-              i === currentSlide ? "w-8 bg-violet-500" : "w-2.5 bg-white/45"
+              i === currentSlide ? "w-8 bg-violet-500 shadow-md shadow-violet-500/50" : "w-2.5 bg-white/60"
             }`}
             aria-label={`Slide ${i + 1}`}
           />

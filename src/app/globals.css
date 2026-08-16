@@ -2,7 +2,7 @@
 @import "@heroui/styles";
 
 /* Smooth transition for theme switching */
-body, nav, div, input, select, textarea, button {
+body, nav, div, input, select, textarea, button, h1, h2, h3, h4, p, span {
   transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
@@ -12,37 +12,80 @@ html.light body {
   color: #0f172a !important;
 }
 
+html.light h1:not(.keep-white),
+html.light h2:not(.keep-white),
+html.light h3:not(.keep-white),
+html.light h4:not(.keep-white),
+html.light h5:not(.keep-white),
+html.light h6:not(.keep-white) {
+  color: #0f172a !important;
+}
+
+html.light p:not(.keep-white):not(.keep-slate),
+html.light span:not(.keep-white):not(.keep-slate) {
+  color: #334155 !important;
+}
+
 html.light .bg-slate-950,
-html.light .bg-slate-900 {
+html.light .bg-slate-900,
+html.light .bg-neutral-900 {
   background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/60 {
+  background-color: #f1f5f9 !important;
   color: #0f172a !important;
 }
 
 html.light .border-slate-800,
 html.light .border-slate-800\/80,
 html.light .border-slate-800\/60 {
-  border-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
 }
 
 html.light .text-slate-100,
-html.light .text-white {
+html.light .text-slate-200 {
   color: #0f172a !important;
 }
 
 html.light .text-slate-400,
-html.light .text-slate-300 {
+html.light .text-slate-300,
+html.light .text-slate-500 {
   color: #475569 !important;
+}
+
+html.light .text-violet-400 {
+  color: #6d28d9 !important;
 }
 
 html.light input,
 html.light select,
 html.light textarea {
-  background-color: #f1f5f9 !important;
+  background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
 
 html.light nav {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
   border-color: #e2e8f0 !important;
+}
+
+/* EXPLICIT HIGH SPECIFICITY WHITE TEXT OVERRIDES FOR HERO BANNER & CATEGORY CARDS */
+html.light .keep-white,
+html.light .keep-white *,
+html.dark .keep-white,
+html.dark .keep-white * {
+  color: #ffffff !important;
+}
+
+html.light .keep-slate,
+html.light .keep-slate *,
+html.dark .keep-slate,
+html.dark .keep-slate * {
+  color: #e2e8f0 !important;
 }
