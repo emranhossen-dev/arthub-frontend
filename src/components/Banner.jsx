@@ -1,53 +1,100 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, Eye } from "@gravity-ui/icons";
+import { Sparkles, ArrowRight, ChevronRight } from "@gravity-ui/icons";
 
 export default function Banner() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      title: "Discover & Buy Original Art",
+      description: "Connecting art lovers and collectors directly with independent digital creators, photographers, and painters worldwide.",
+      image: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=1200",
+      tag: "Premium Art Marketplace",
+    },
+    {
+      title: "Support Creative Minds",
+      description: "Buy original pieces direct from artists. We ensure verified transactions, secure delivery, and zero gallery middleman markups.",
+      image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=1200",
+      tag: "Verified Independent Artists",
+    },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
   return (
-    <section className="relative overflow-hidden bg-slate-900/50 py-20 lg:py-28 border-b border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto space-y-6">
-          
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span>Next-Gen Digital Art Marketplace</span>
-          </div>
+    <section className="relative h-[550px] md:h-[600px] w-full overflow-hidden bg-neutral-900 text-white flex items-center">
+      {slides.map((slide, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+          }`}
+        >
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/60 z-10" />
 
-          {/* Heading */}
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-slate-100">
-            Discover & Buy{" "}
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-              Original Art
-            </span>
-          </h1>
+          {/* Background Image */}
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className="absolute inset-0 h-full w-full object-cover object-center transform scale-105 transition-transform duration-[6000ms]"
+          />
 
-          {/* Subtitle */}
-          <p className="text-lg text-slate-400 leading-relaxed">
-            Empowering artists and art lovers worldwide. Browse curated collections, connect with creators, and purchase verified original artworks seamlessly.
-          </p>
+          {/* Content */}
+          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-violet-600/20 border border-violet-500/30 px-3.5 py-1.5 text-xs font-bold text-violet-300 uppercase tracking-widest self-start animate-pulse">
+              <Sparkles className="w-4 h-4 text-violet-400" />
+              <span>{slide.tag}</span>
+            </div>
 
-          {/* CTA Buttons */}
-          <div className="pt-4 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/browse"
-              className="inline-flex items-center gap-2 px-7 py-3 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-full shadow-lg shadow-indigo-500/25 active:scale-95 transition-all duration-200"
-            >
-              <span>Browse Artworks</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight max-w-2xl leading-none">
+              {slide.title}
+            </h1>
 
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 px-7 py-3 text-sm font-semibold text-slate-200 border border-slate-700 hover:bg-slate-800 rounded-full active:scale-95 transition-all duration-200"
-            >
-              <Eye className="w-5 h-5 text-slate-300" />
-              <span>Learn More</span>
-            </Link>
+            <p className="text-sm sm:text-base md:text-lg text-neutral-300 max-w-lg leading-relaxed">
+              {slide.description}
+            </p>
+
+            <div className="flex flex-wrap gap-4 pt-2">
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition-all hover:scale-[1.01]"
+              >
+                <span>Browse Artworks</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 hover:bg-white/20 px-6 py-3 text-sm font-semibold transition-all"
+              >
+                <span>Join as Artist</span>
+              </Link>
+            </div>
           </div>
         </div>
+      ))}
+
+      {/* Slide Pagination Dots */}
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentSlide(i)}
+            className={`h-2.5 rounded-full transition-all cursor-pointer ${
+              i === currentSlide ? "w-8 bg-violet-500" : "w-2.5 bg-white/45"
+            }`}
+            aria-label={`Slide ${i + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
