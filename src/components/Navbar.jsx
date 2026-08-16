@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
-import { Palette, ArrowRightToSquare, Bars, Xmark, ArrowRightFromLine, LayoutHeader, User } from "@gravity-ui/icons";
+import { Palette, ArrowRightToSquare, Bars, Xmark, ArrowRightFromLine, LayoutHeader, User, Heart } from "@gravity-ui/icons";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,6 +78,16 @@ export default function Navbar() {
               Browse Artworks
             </Link>
 
+            <Link
+              href="/wishlist"
+              className={`text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                isActive("/wishlist") ? "text-rose-400 font-semibold" : "text-slate-300 hover:text-rose-400"
+              }`}
+            >
+              <Heart className="w-4 h-4 text-rose-500" />
+              <span>Wishlist</span>
+            </Link>
+
             {/* Role-Based Dynamic Dashboard Link */}
             {user && (
               <Link
@@ -90,8 +101,10 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Right Action: Auth State Handling */}
-          <div className="flex items-center gap-4">
+          {/* Right Action: Theme Toggle & Auth State */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+
             {isPending ? (
               // Skeleton loading while checking session
               <div className="w-8 h-8 rounded-full bg-slate-800 animate-pulse"></div>
@@ -129,6 +142,15 @@ export default function Navbar() {
                     >
                       <LayoutHeader className="w-4 h-4" />
                       <span>Dashboard</span>
+                    </Link>
+
+                    <Link
+                      href="/wishlist"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white"
+                    >
+                      <Heart className="w-4 h-4 text-rose-500" />
+                      <span>My Wishlist</span>
                     </Link>
 
                     <button
@@ -171,6 +193,13 @@ export default function Navbar() {
             className={`block py-2 text-base ${isActive("/browse") ? "text-indigo-400 font-semibold" : "text-slate-200"}`}
           >
             Browse Artworks
+          </Link>
+          <Link
+            href="/wishlist"
+            onClick={() => setIsMenuOpen(false)}
+            className={`block py-2 text-base ${isActive("/wishlist") ? "text-rose-400 font-semibold" : "text-slate-200"}`}
+          >
+            Wishlist
           </Link>
           {user && (
             <Link

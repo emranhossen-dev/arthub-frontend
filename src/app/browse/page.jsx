@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Magnifier, Funnel, ArrowRight, ChevronLeft, ChevronRight } from "@gravity-ui/icons";
+import { Magnifier, Funnel, ArrowRight, ChevronLeft, ChevronRight, Heart } from "@gravity-ui/icons";
+import { useSession } from "@/lib/auth-client";
 
 export default function BrowseArtworksPage() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const [artworks, setArtworks] = useState([]);
+  const [wishlistIds, setWishlistIds] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Filter States
@@ -19,6 +24,8 @@ export default function BrowseArtworksPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalArtworks, setTotalArtworks] = useState(0);
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
 
   const fetchArtworks = async () => {
     setLoading(true);
@@ -34,7 +41,6 @@ export default function BrowseArtworksPage() {
 
       const queryParams = new URLSearchParams(paramsObj);
 
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
       const res = await fetch(`${baseUrl}?${queryParams.toString()}`);
       const data = await res.json();
 
@@ -51,9 +57,46 @@ export default function BrowseArtworksPage() {
     }
   };
 
+  const fetchWishlist = async () => {
+    if (!user?.email) return;
+    try {
+      const res = await fetch(`${baseUrl}/wishlist/${user.email}`);
+      const data = await res.json();
+      if (res.ok) setWishlistIds(data.wishlist || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchArtworks();
   }, [search, category, minPrice, maxPrice, sort, page]);
+
+  useEffect(() => {
+    if (user?.email) fetchWishlist();
+  }, [user?.email]);
+
+  const handleToggleWishlist = async (e, artworkId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user?.email) {
+      alert("Please login to save artworks to your wishlist!");
+      return;
+    }
+    try {
+      const res = await fetch(`${baseUrl}/wishlist/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: user.email, artworkId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setWishlistIds(data.wishlist || []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleResetFilters = () => {
     setSearch("");
@@ -68,14 +111,13 @@ export default function BrowseArtworksPage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-6 gap-4">
+        {/* Page Title & Count */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 gap-4">
           <div>
-            <span className="text-xs font-bold tracking-widest text-violet-400 uppercase">
-              Explore Collection
-            </span>
-            <h1 className="text-3xl font-black text-white mt-1">Browse Original Artworks</h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">
+              Explore Artworks
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">
               Discover unique original paintings, digital art, sculptures, and photography.
             </p>
           </div>
@@ -195,7 +237,7 @@ export default function BrowseArtworksPage() {
               <Link
                 key={art._id}
                 href={`/artworks/${art._id}`}
-                className="group rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden hover:shadow-xl hover:border-violet-500/30 transition-all flex flex-col h-full"
+                className="group rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden hover:shadow-xl hover:border-violet-500/30 transition-all flex flex-col h-full relative"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950">
                   <img
@@ -204,10 +246,23 @@ export default function BrowseArtworksPage() {
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                   />
                   {art.status === "sold" && (
-                    <span className="absolute top-3 right-3 bg-red-600/90 text-white text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full shadow">
+                    <span className="absolute top-3 left-3 bg-red-600/90 text-white text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full shadow z-10">
                       Sold
                     </span>
                   )}
+                  
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={(e) => handleToggleWishlist(e, art._id)}
+                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition shadow z-10 cursor-pointer ${
+                      wishlistIds.includes(art._id)
+                        ? "bg-rose-500 text-white"
+                        : "bg-slate-950/60 text-slate-300 hover:bg-rose-500 hover:text-white"
+                    }`}
+                    title={wishlistIds.includes(art._id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                  >
+                    <Heart className="w-4 h-4" />
+                  </button>
                 </div>
 
                 <div className="p-4 flex-grow flex flex-col justify-between space-y-3">
@@ -245,11 +300,11 @@ export default function BrowseArtworksPage() {
               disabled={page === 1}
               className="p-2.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-slate-300 transition cursor-pointer"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="text-xs font-semibold text-slate-300 px-4">
-              Page <span className="text-violet-400">{page}</span> of {totalPages}
+            <span className="text-xs font-semibold text-slate-400">
+              Page <span className="text-white font-bold">{page}</span> of {totalPages}
             </span>
 
             <button
@@ -257,7 +312,7 @@ export default function BrowseArtworksPage() {
               disabled={page === totalPages}
               className="p-2.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-slate-300 transition cursor-pointer"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}

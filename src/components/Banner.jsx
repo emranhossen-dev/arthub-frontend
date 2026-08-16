@@ -2,23 +2,29 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, ChevronRight } from "@gravity-ui/icons";
+import { Sparkles, ArrowRight } from "@gravity-ui/icons";
 
 export default function Banner() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
     {
-      title: "Discover & Buy Original Art",
+      title: "Discover & Collect Original Art",
       description: "Connecting art lovers and collectors directly with independent digital creators, photographers, and painters worldwide.",
-      image: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=1200",
-      tag: "Premium Art Marketplace",
+      image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=1600",
+      tag: "Global Art Marketplace",
     },
     {
-      title: "Support Creative Minds",
+      title: "Empowering Independent Creators",
       description: "Buy original pieces direct from artists. We ensure verified transactions, secure delivery, and zero gallery middleman markups.",
-      image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=1200",
-      tag: "Verified Independent Artists",
+      image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=1600",
+      tag: "Verified Creator Network",
+    },
+    {
+      title: "Exclusive Digital & Fine Artworks",
+      description: "Explore curated original paintings, sculptures, and photography crafted by passionate artists around the globe.",
+      image: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=1600",
+      tag: "Authentic & Verified Works",
     },
   ];
 
