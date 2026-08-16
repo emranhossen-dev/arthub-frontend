@@ -11,6 +11,7 @@ const db = client.db("ArtHub"); // database name
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { client }),
+  baseURL: process.env.BETTER_AUTH_URL || "https://arthubemran.netlify.app",
   emailAndPassword: { enabled: true },
   
   // CORS & Security Allowed Origins
