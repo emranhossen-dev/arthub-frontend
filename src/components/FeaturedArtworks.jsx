@@ -14,9 +14,8 @@ export default function FeaturedArtworks() {
     fetch(API_URL)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setArtworks(data.slice(0, 6)); // Display latest 6 items
-        }
+        const list = Array.isArray(data) ? data : (data.artworks || []);
+        setArtworks(list.slice(0, 6));
         setLoading(false);
       })
       .catch((err) => {

@@ -23,24 +23,26 @@ export default function BrowseArtworksPage() {
   const fetchArtworks = async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams({
-        search,
-        category,
-        minPrice,
-        maxPrice,
-        sort,
-        page: page.toString(),
-        limit: "8",
-      });
+      const paramsObj = {};
+      if (search.trim()) paramsObj.search = search.trim();
+      if (category) paramsObj.category = category;
+      if (minPrice) paramsObj.minPrice = minPrice;
+      if (maxPrice) paramsObj.maxPrice = maxPrice;
+      if (sort) paramsObj.sort = sort;
+      paramsObj.page = page.toString();
+      paramsObj.limit = "8";
+
+      const queryParams = new URLSearchParams(paramsObj);
 
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
       const res = await fetch(`${baseUrl}?${queryParams.toString()}`);
       const data = await res.json();
 
       if (res.ok) {
-        setArtworks(data.artworks || []);
+        const list = Array.isArray(data) ? data : (data.artworks || []);
+        setArtworks(list);
         setTotalPages(data.totalPages || 1);
-        setTotalArtworks(data.totalArtworks || 0);
+        setTotalArtworks(data.totalArtworks !== undefined ? data.totalArtworks : list.length);
       }
     } catch (error) {
       console.error("Failed to fetch artworks:", error);
