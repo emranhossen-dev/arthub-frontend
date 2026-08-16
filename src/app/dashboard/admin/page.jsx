@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const adminUrl = process.env.NEXT_PUBLIC_ADMIN_API_URL || "http://localhost:5000/api/admin";
+  const adminUrl = process.env.NEXT_PUBLIC_ADMIN_API_URL || "https://arthub-backend.emran.work/api/admin";
 
   const fetchAdminData = async () => {
     try {

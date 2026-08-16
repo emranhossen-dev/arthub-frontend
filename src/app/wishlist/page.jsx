@@ -12,7 +12,7 @@ export default function WishlistPage() {
   const [wishlistArtworks, setWishlistArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://arthub-backend.emran.work/api/artworks";
 
   const fetchWishlist = async () => {
     if (!user?.email) {

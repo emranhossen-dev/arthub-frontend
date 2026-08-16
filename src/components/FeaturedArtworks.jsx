@@ -8,7 +8,7 @@ export default function FeaturedArtworks() {
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://arthub-backend.emran.work/api/artworks";
 
   useEffect(() => {
     fetch(API_URL)

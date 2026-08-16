@@ -25,7 +25,7 @@ export default function BrowseArtworksPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalArtworks, setTotalArtworks] = useState(0);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://arthub-backend.emran.work/api/artworks";
 
   const fetchArtworks = async () => {
     setLoading(true);

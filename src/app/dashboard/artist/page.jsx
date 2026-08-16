@@ -24,7 +24,7 @@ export default function ArtistDashboard() {
   const [myArtworks, setMyArtworks] = useState([]);
   const [fetchingArtworks, setFetchingArtworks] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://arthub-backend.emran.work/api/artworks";
   const imgbbApiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY || "a1234567890abcdef1234567890abcde";
 
   const fetchMyArtworks = async () => {

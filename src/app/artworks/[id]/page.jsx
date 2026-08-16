@@ -49,9 +49,9 @@ export default function ArtworkDetailsPage({ params }) {
 
   const [paymentLoading, setPaymentLoading] = useState(false);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/artworks";
-  const commentsUrl = process.env.NEXT_PUBLIC_COMMENTS_API_URL || "http://localhost:5000/api/comments";
-  const paymentsUrl = process.env.NEXT_PUBLIC_PAYMENTS_API_URL || "http://localhost:5000/api/payments";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://arthub-backend.emran.work/api/artworks";
+  const commentsUrl = process.env.NEXT_PUBLIC_COMMENTS_API_URL || "https://arthub-backend.emran.work/api/comments";
+  const paymentsUrl = process.env.NEXT_PUBLIC_PAYMENTS_API_URL || "https://arthub-backend.emran.work/api/payments";
 
   const fetchArtworkDetails = async () => {
     try {
