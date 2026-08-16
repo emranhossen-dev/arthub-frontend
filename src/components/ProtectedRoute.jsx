@@ -13,9 +13,14 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
       if (!session?.user) {
         // Logged out -> redirect to login
         router.push("/login");
-      } else if (allowedRoles.length > 0 && !allowedRoles.includes(session.user.role || "user")) {
-        // Unauthorized role -> redirect to home
-        router.push("/");
+      } else {
+        const userEmail = session.user.email?.toLowerCase();
+        const userRole = userEmail === "admin@arthub.com" ? "admin" : (session.user.role || "user");
+
+        if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+          // Unauthorized role -> redirect to home
+          router.push("/");
+        }
       }
     }
   }, [session, isPending, allowedRoles, router]);
@@ -32,9 +37,14 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     );
   }
 
-  // If authenticated and role matches, render children
+  // If authenticated and role matches
   if (session?.user) {
-    return <>{children}</>;
+    const userEmail = session.user.email?.toLowerCase();
+    const userRole = userEmail === "admin@arthub.com" ? "admin" : (session.user.role || "user");
+
+    if (allowedRoles.length === 0 || allowedRoles.includes(userRole)) {
+      return <>{children}</>;
+    }
   }
 
   return null;

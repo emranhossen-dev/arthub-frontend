@@ -19,10 +19,10 @@ export default function Navbar() {
 
   const isActive = (path) => pathname === path;
 
-  // Determine dashboard route based on user role
+  // Determine dashboard route based on user role or admin email
   const getDashboardRoute = () => {
     if (!user) return "/login";
-    if (user.role === "admin") return "/dashboard/admin";
+    if (user.email?.toLowerCase() === "admin@arthub.com" || user.role === "admin") return "/dashboard/admin";
     if (user.role === "artist") return "/dashboard/artist";
     return "/dashboard/user";
   };
@@ -131,7 +131,7 @@ export default function Navbar() {
                       <p className="text-sm font-semibold text-slate-100">{user.name}</p>
                       <p className="text-xs text-slate-400 truncate">{user.email}</p>
                       <span className="inline-block mt-1 px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                        Role: {user.role || "User"}
+                        Role: {user.email?.toLowerCase() === "admin@arthub.com" ? "Admin" : (user.role || "User")}
                       </span>
                     </div>
 
@@ -207,7 +207,7 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(false)}
               className={`block py-2 text-base ${pathname.startsWith("/dashboard") ? "text-indigo-400 font-semibold" : "text-slate-200"}`}
             >
-              Dashboard ({user.role || "User"})
+              Dashboard ({user.email?.toLowerCase() === "admin@arthub.com" ? "Admin" : (user.role || "User")})
             </Link>
           )}
         </div>

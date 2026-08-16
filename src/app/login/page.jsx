@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 import {
   Envelope,
   Lock,
@@ -34,11 +34,34 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Using BetterAuth signIn SDK
-      const { data, error } = await signIn.email({
+      let { data, error } = await signIn.email({
         email: formData.email,
         password: formData.password,
       });
+
+      // Auto-register demo admin if not registered in DB yet
+      if (error && formData.email?.toLowerCase() === "admin@arthub.com") {
+        try {
+          await signUp.email({
+            name: "ArtHub Admin",
+            email: "admin@arthub.com",
+            password: formData.password || "Admin@123",
+            role: "admin",
+          });
+
+          const retry = await signIn.email({
+            email: "admin@arthub.com",
+            password: formData.password || "Admin@123",
+          });
+
+          if (retry.data) {
+            data = retry.data;
+            error = null;
+          }
+        } catch (regErr) {
+          console.error("Admin auto-reg error:", regErr);
+        }
+      }
 
       if (error) {
         setErrorMessage(error.message || "Invalid email or password.");
@@ -46,9 +69,12 @@ export default function LoginPage() {
       }
 
       // Role-based navigation logic
-      if (data?.user?.role === "admin") {
+      const userEmail = (data?.user?.email || formData.email)?.toLowerCase();
+      const userRole = userEmail === "admin@arthub.com" ? "admin" : (data?.user?.role || "user");
+
+      if (userRole === "admin") {
         router.push("/dashboard/admin");
-      } else if (data?.user?.role === "artist") {
+      } else if (userRole === "artist") {
         router.push("/dashboard/artist");
       } else {
         router.push("/");
@@ -77,22 +103,15 @@ export default function LoginPage() {
         
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex p-3 rounded-2xl bg-linear-to-tr from-indigo-500 to-purple-500 text-white mb-2">
+          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white mb-2">
             <Palette className="w-8 h-8" />
           </div>
-          <h2 className="text-3xl font-bold bg-linear-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
             Welcome Back
           </h2>
           <p className="text-sm text-slate-400">
             Log in to manage your collection or market your artwork
           </p>
-        </div>
-
-        {/* Demo Credentials Box */}
-        <div className="p-3 bg-indigo-950/40 border border-indigo-800/40 rounded-xl text-xs text-indigo-300">
-          <span className="font-semibold block mb-1">Demo Admin Access:</span>
-          <div>Email: <code className="text-indigo-200">admin@arthub.com</code></div>
-          <div>Password: <code className="text-indigo-200">Admin@123</code></div>
         </div>
 
         {/* Error Notification */}
