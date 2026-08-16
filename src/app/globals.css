@@ -1,2 +1,48 @@
 @import "tailwindcss";
-@import "@heroui/styles"; 
+@import "@heroui/styles";
+
+/* Smooth transition for theme switching */
+body, nav, div, input, select, textarea, button {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Light mode overrides when html.light class is active */
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-slate-950,
+html.light .bg-slate-900 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/60 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-slate-100,
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-400,
+html.light .text-slate-300 {
+  color: #475569 !important;
+}
+
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light nav {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #e2e8f0 !important;
+}

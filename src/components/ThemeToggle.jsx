@@ -9,30 +9,31 @@ export default function ThemeToggle() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("arthub_theme") || "dark";
     setTheme(savedTheme);
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    if (savedTheme === "dark") {
+    applyTheme(savedTheme);
+  }, []);
+
+  const applyTheme = (t) => {
+    document.documentElement.setAttribute("data-theme", t);
+    if (t === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
     } else {
+      document.documentElement.classList.add("light");
       document.documentElement.classList.remove("dark");
     }
-  }, []);
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     localStorage.setItem("arthub_theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    applyTheme(newTheme);
   };
 
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition cursor-pointer"
+      className="p-2 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition cursor-pointer flex items-center justify-center"
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       aria-label="Toggle Theme"
     >

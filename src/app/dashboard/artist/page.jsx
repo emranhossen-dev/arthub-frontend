@@ -5,6 +5,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useSession } from "@/lib/auth-client";
 import { Palette, Cloud, ArrowRight, Check, TrashBin, Pencil, Tag, Eye } from "@gravity-ui/icons";
 import Link from "next/link";
+import Swal from "sweetalert2";
+import { toast } from "react-hot-toast";
 
 export default function ArtistDashboard() {
   const { data: session } = useSession();
@@ -18,7 +20,6 @@ export default function ArtistDashboard() {
   });
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
 
   const [myArtworks, setMyArtworks] = useState([]);
   const [fetchingArtworks, setFetchingArtworks] = useState(true);
@@ -60,10 +61,9 @@ export default function ArtistDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "", text: "" });
 
     if (!imageFile) {
-      setMessage({ type: "error", text: "Please select an artwork image file to upload." });
+      toast.error("Please select an artwork image file to upload.");
       return;
     }
 
@@ -108,24 +108,44 @@ export default function ArtistDashboard() {
         throw new Error(data.message || "Failed to publish artwork.");
       }
 
-      setMessage({ type: "success", text: "Artwork published successfully!" });
+      Swal.fire({
+        title: "Published!",
+        text: "Your artwork has been published to the live marketplace.",
+        icon: "success",
+        confirmButtonColor: "#8b5cf6",
+      });
+
       setFormData({ title: "", description: "", price: "", category: "Painting" });
       setImageFile(null);
       fetchMyArtworks();
     } catch (err) {
-      setMessage({ type: "error", text: err.message || "An error occurred." });
+      toast.error(err.message || "An error occurred during upload.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteArtwork = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this artwork?")) return;
+    const result = await Swal.fire({
+      title: "Delete Artwork?",
+      text: "Are you sure you want to remove this piece from gallery?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, delete",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const res = await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
-      if (res.ok) fetchMyArtworks();
+      if (res.ok) {
+        toast.success("Artwork deleted successfully");
+        fetchMyArtworks();
+      }
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to delete artwork");
     }
   };
 
@@ -156,18 +176,6 @@ export default function ArtistDashboard() {
                 <Palette className="w-5 h-5 text-violet-400" />
                 <h2 className="text-xl font-bold text-white">Publish New Artwork</h2>
               </div>
-
-              {message.text && (
-                <div
-                  className={`p-3 rounded-xl text-xs font-medium ${
-                    message.type === "success"
-                      ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                      : "bg-red-500/10 border border-red-500/20 text-red-400"
-                  }`}
-                >
-                  {message.text}
-                </div>
-              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
