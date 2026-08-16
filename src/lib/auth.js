@@ -14,10 +14,29 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "https://arthubemran.netlify.app",
   emailAndPassword: { enabled: true },
   
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "user",
+        input: true,
+      },
+      subscriptionTier: {
+        type: "string",
+        required: false,
+        defaultValue: "free",
+        input: true,
+      },
+    },
+  },
+
   // CORS & Security Allowed Origins
   trustedOrigins: [
     "https://arthubemran.netlify.app",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
   ],
   
   socialProviders: {

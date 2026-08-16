@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { MagnifyingGlass, Funnel, ArrowRight, ChevronLeft, ChevronRight } from "@gravity-ui/icons";
+import { Magnifier, Funnel, ArrowRight, ChevronLeft, ChevronRight } from "@gravity-ui/icons";
 
 export default function BrowseArtworksPage() {
   const [artworks, setArtworks] = useState([]);
@@ -93,7 +93,7 @@ export default function BrowseArtworksPage() {
             {/* Search Input */}
             <div className="relative md:col-span-2">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                <MagnifyingGlass className="w-5 h-5" />
+                <Magnifier className="w-5 h-5" />
               </span>
               <input
                 type="text"

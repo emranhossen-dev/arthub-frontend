@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useSession } from "@/lib/auth-client";
-import { Palette, CloudUpload, ArrowRight, Check } from "@gravity-ui/icons";
+import { Palette, Cloud, ArrowRight, Check } from "@gravity-ui/icons";
 
 export default function ArtistDashboard() {
   const { data: session } = useSession();
@@ -197,7 +197,7 @@ export default function ArtistDashboard() {
               <div className="flex items-center justify-center w-full">
                 <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-800 hover:border-violet-500/50 bg-slate-950 rounded-2xl cursor-pointer transition">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <CloudUpload className="w-8 h-8 text-violet-400 mb-2" />
+                    <Cloud className="w-8 h-8 text-violet-400 mb-2" />
                     <p className="text-sm text-slate-300 font-medium">
                       {imageFile ? imageFile.name : "Click to upload image file"}
                     </p>
